@@ -6,6 +6,7 @@ use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 use Imagick;
 
 class ClienteController extends Controller
@@ -72,12 +73,6 @@ class ClienteController extends Controller
     }
 
     #METODOS para probar IMAGICK
-    //MEtodo para la vista LISTARCLIENTES
-    public function mostrarFormulario2()
-    {
-        $clientes = Cliente::all(); // Obtener todos los clientes
-        return view('buscar_cliente', compact('clientes')); // Pasar la variable a la vista
-    }
 
     public function buscarCliente(Request $request)
     {
@@ -276,19 +271,7 @@ class ClienteController extends Controller
             
                 return view('edit', compact('cliente'));
             }
-            
-            //metodo para el boton VER DETALLES
-        public function mostrarCliente($id)
-            {
-                $cliente = Cliente::find($id);
-
-                if (!$cliente) {
-                    return redirect()->back()->with('error', 'Cliente no encontrado.');
-                }
-
-                return view('mostrar_cliente', compact('cliente')); // Asegúrate de que la vista existe
-            }
-
+        
         public function destroy($id)
             {
                     // Buscar el cliente
@@ -304,6 +287,71 @@ class ClienteController extends Controller
                 
                     return redirect()->route('clientes.index');
             }
+
+            //MEtodo para la vista LISTARCLIENTES
+        
+            
+            //metodo para el boton VER DETALLES
+            public function mostrarCliente($id, $hashes)
+            {
+                // Validar el hash
+                $hashValido = substr(hash('sha256', $id . env('URL_SALT')), -8);
+                if ($hashes !== $hashValido) {
+                    return redirect()->back()->with('error', 'Hash inválido.');
+                }
+            
+                $cliente = Cliente::find($id);
+            
+                if (!$cliente) {
+                    return redirect()->back()->with('error', 'Cliente no encontrado.');
+                }
+            
+                return view('mostrar_cliente', compact('cliente'));
+            }
+            
+            
+
+        
+
+#  - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - 
+
+        public function generarHash($id)
+            {
+                $salt = env('URL_SALT');
+                $hash = hash('sha256', $salt . $id);
+                
+                // Tomar los 8 primeros caracteres de derecha a izquierda
+                return substr(strrev($hash), 0, 8);
+            }   
+
+            public function manejarClientes(Request $request, $id = null, $hash = null)
+            {
+                // Si se recibe un ID y un hash, intentamos mostrar el cliente específico
+                if ($id && $hash) {
+                    $hashGenerado = $this->generarHash($id);
+            
+                    // Validar el hash recibido con el generado
+                    if ($hash !== $hashGenerado) {
+                        return redirect()->route('clientes.index')->with('error', 'Acceso no autorizado.');
+                    }
+            
+                    // Obtener el cliente y mostrar la vista individual
+                    $cliente = Cliente::findOrFail($id);
+                    return view('clientes.show', compact('cliente'));
+                }
+            
+                // Si no se recibe ID ni hash, generamos la lista completa de clientes con sus hashes
+                $clientes = Cliente::all();
+                $hashes = [];
+            
+                foreach ($clientes as $cliente) {
+                    $hashes[$cliente->id] = $this->generarHash($cliente->id);
+                }
+            
+                // Mostrar la vista de lista de clientes
+                return view('buscar_cliente', compact('clientes', 'hashes'));
+            }
+            
 
 
 }   

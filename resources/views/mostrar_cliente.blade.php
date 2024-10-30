@@ -78,7 +78,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>IINFORMACIÓN DEL CLIENTE</h1>
+        <h1>IINFORMACIÓN DEL CLIENTE - MOSTRAR CLIENTE</h1>
         <div class="info">
             <strong>Nombre:</strong> {{ $cliente->nombre }}<br/><br/>
             <strong>Teléfono:</strong> {{ $cliente->telefono }}<br/><br/>

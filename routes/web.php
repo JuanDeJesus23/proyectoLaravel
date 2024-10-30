@@ -53,7 +53,7 @@ Route::get('/formCliente', [ClienteController::class, 'mostrarFormulario']);
 Route::post('/guardarCliente', [ClienteController::class, 'guardarCliente']);
 
 // rutas para probar IMAGICK
-Route::get('/listadeclientes', [ClienteController::class, 'mostrarFormulario2'])->name('clientes.mostrar_cliente');
+
 Route::post('/buscar-cliente', [ClienteController::class, 'buscarCliente'])->name('clientes.buscarCliente');
 Route::post('/subir-imagen/{id}', [ClienteController::class, 'subirImagen'])->name('clientes.subirImagen');
 
@@ -75,12 +75,15 @@ Route::get('/clientes/{id}/edit', [ClienteController::class, 'formUpdate'])->nam
 Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
 
 // Mostrar detalles del cliente
-Route::get('/clientes/{id}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar_cliente');
+Route::get('/clientes/{id}/{hash}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar_cliente');
 
 // Eliminar un cliente
 Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
 
 //SALT, ruta que recomendo chat
 //Route::get('/clientes/{id}/detalle', [ClienteController::class, 'mostrarDetalles'])->name('clientes.hash');
+Route::get('/clientes/{id?}/{hash?}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar');
+
+Route::get('/listadeclientes', [ClienteController::class, 'manejarClientes'])->name('clientes.manejar');
 
 
