@@ -292,22 +292,19 @@ class ClienteController extends Controller
         
             
             //metodo para el boton VER DETALLES
-            public function mostrarCliente($id, $hashes)
+        public function mostrarCliente($id, $hash)
             {
-                // Validar el hash
-                $hashValido = substr(hash('sha256', $id . env('URL_SALT')), -8);
-                if ($hashes !== $hashValido) {
-                    return redirect()->back()->with('error', 'Hash inválido.');
+                $hashGenerado = $this->generarHash($id);
+            
+                if ($hash !== $hashGenerado) {
+                    return redirect()->route('clientes.index')->with('error', 'Acceso no autorizado.');
                 }
             
-                $cliente = Cliente::find($id);
-            
-                if (!$cliente) {
-                    return redirect()->back()->with('error', 'Cliente no encontrado.');
-                }
-            
+                $cliente = Cliente::findOrFail($id);
                 return view('mostrar_cliente', compact('cliente'));
             }
+            
+
             
             
 
@@ -337,7 +334,7 @@ class ClienteController extends Controller
             
                     // Obtener el cliente y mostrar la vista individual
                     $cliente = Cliente::findOrFail($id);
-                    return view('clientes.show', compact('cliente'));
+                    return view('mostrar_cliente', compact('cliente'));
                 }
             
                 // Si no se recibe ID ni hash, generamos la lista completa de clientes con sus hashes

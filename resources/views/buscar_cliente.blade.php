@@ -11,6 +11,7 @@
             color: #343a40;
             margin: 0;
             padding: 20px;
+            font-size: 18px;
         }
         .container {
             max-width: 1500px;
@@ -112,8 +113,8 @@
                         <td>
                             <!-- Botón para ver detalles del cliente -->
                             <a href="{{ route('clientes.mostrar', ['id' => $cliente->id, 'hash' => $hashes[$cliente->id]]) }}">
-                                Ver Información
-                            </a>
+                                <button class="view-button">Ver Información</button>
+                            </a>                            
                             
 
                             <!-- Botón para editar cliente -->

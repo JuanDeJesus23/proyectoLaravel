@@ -82,7 +82,7 @@ Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('cl
 
 //SALT, ruta que recomendo chat
 //Route::get('/clientes/{id}/detalle', [ClienteController::class, 'mostrarDetalles'])->name('clientes.hash');
-Route::get('/clientes/{id?}/{hash?}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar');
+Route::get('/clientes/{id?}/{hash}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar');
 
 Route::get('/listadeclientes', [ClienteController::class, 'manejarClientes'])->name('clientes.manejar');
 
