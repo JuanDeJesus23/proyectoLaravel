@@ -20,7 +20,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Configurar el archivo default de Apache para que la ruta apunte a /var/www/html/public
 COPY /apache/000-default.conf /etc/apache2/sites-available/000-default.conf
-COPY php.ini /usr/local/etc/php/
+#COPY php.ini /usr/local/etc/php/
 
 #para poner las limitantes de imagen (3MB)
 #COPY custom-php.ini /usr/local/etc/php/conf.d/custom-php.ini

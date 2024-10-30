@@ -53,14 +53,34 @@ Route::get('/formCliente', [ClienteController::class, 'mostrarFormulario']);
 Route::post('/guardarCliente', [ClienteController::class, 'guardarCliente']);
 
 // rutas para probar IMAGICK
-Route::get('/buscar-cliente', [ClienteController::class, 'mostrarFormulario2'])->name('clientes.buscar');
+Route::get('/listadeclientes', [ClienteController::class, 'mostrarFormulario2'])->name('clientes.mostrar_cliente');
 Route::post('/buscar-cliente', [ClienteController::class, 'buscarCliente'])->name('clientes.buscarCliente');
 Route::post('/subir-imagen/{id}', [ClienteController::class, 'subirImagen'])->name('clientes.subirImagen');
 
 //Ruta para la vista quqe muestra clientes con miniaturas
 Route::get('/clientes-miniaturas', [ClienteController::class, 'listarClientesConMiniaturas'])->name('clientes.miniaturas');
 
+//nuevas rutas para práctica de 29-10-2024
+Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
+//Route::get('/clientes/edit/{id}', [ClienteController::class, 'edit'])->name('clientes.edit');
 
+//CRUD
+Route::get('/clientes/create', [ClienteController::class, 'create'])->name('clientes.create');
+Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
 
+// Mostrar el formulario de edición
+Route::get('/clientes/{id}/edit', [ClienteController::class, 'formUpdate'])->name('clientes.edit');
+
+// Actualizar el cliente
+Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
+
+// Mostrar detalles del cliente
+Route::get('/clientes/{id}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar_cliente');
+
+// Eliminar un cliente
+Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+
+//SALT, ruta que recomendo chat
+//Route::get('/clientes/{id}/detalle', [ClienteController::class, 'mostrarDetalles'])->name('clientes.hash');
 
 

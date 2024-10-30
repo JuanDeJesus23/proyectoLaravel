@@ -1,88 +1,135 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Buscar Cliente</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LISTA DE CLIENTES</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f2f2ce;
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            color: #343a40;
             margin: 0;
             padding: 20px;
         }
         .container {
-            max-width: 900px; /* Aumenta el ancho */
-            height: 400px; /* Aumenta la altura */
-            margin: 20px auto; /* Centra horizontalmente y da espacio arriba */
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            text-align: center;
-            position: relative;
+            max-width: 1500px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
         }
         h1 {
-            color: #333;
-            font-size: 2em;
+            text-align: center;
+            color: #495057;
+            margin-bottom: 20px;
         }
-        input[type="text"] {
+        table {
             width: 100%;
-            padding: 15px;
-            margin: 15px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 18px;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        td {
+            background-color: #f8f9fa;
         }
         button {
-            width: 100%;
-            padding: 15px;
-            background-color: #4287fd;
-            color: white;
+            padding: 8px 12px;
             border: none;
-            border-radius: 5px;
-            font-size: 18px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+        }
+        .edit-button {
+            background-color: #ffc107;
+            color: white;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+        .create-button {
+            background-color: #28a745;
+            color: white;
+            margin-bottom: 20px;
+            width: 250px;
+            height: 100px;
+            font-size: 20px;
+            
         }
         button:hover {
-            background-color: #031cfb;
+            transform: scale(1.05);
+            opacity: 0.9;
         }
-        .error {
-            color: red;
-            font-weight: bold;
-            margin-top: 15px;
+        a {
+            text-decoration: none;
         }
-        /* Barra de colores */
-        .color-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 20px;
-            background: linear-gradient(90deg, blue, red, yellow, orange, red);
-            background-size: 500%;
-            animation: colorShift 5s infinite linear;
-            border-radius: 0 0 10px 10px;
+        .view-button {
+            background-color: #007bff;
+            color: white;
         }
-        @keyframes colorShift {
-            0% { background-position: 0%; }
-            100% { background-position: 100%; }
+        .view-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Buscar Cliente</h1>
-        <form action="{{ route('clientes.buscarCliente') }}" method="POST">
-            @csrf
-            <input type="text" name="id" placeholder="Ingrese ID del cliente" required>
-            <button type="submit">Buscar</button>
-        </form>
-        @if ($errors->any())
-            <div class="error">{{ $errors->first() }}</div>
-        @endif
-        <div class="color-bar"></div> <!-- Barra de colores animada -->
+        <h1>LISTA DE CLIENTES</h1>
+
+        <a href="{{ route('clientes.create') }}">
+            <button class="create-button">Crear Nuevo Cliente</button>
+        </a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($clientes as $cliente)
+                    <tr>
+                        <td>{{ $cliente->id }}</td>
+                        <td>{{ $cliente->nombre }}</td>
+                        <td>{{ $cliente->telefono }}</td>
+                        <td>{{ $cliente->correo }}</td>
+                        <td>
+                            <!-- Botón para ver detalles del cliente -->
+                            <a href="{{ route('clientes.mostrar_cliente', $cliente->id) }}">
+                                <button class="view-button">Ver Detalles</button>
+                            </a>
+                            <!-- Botón para editar cliente -->
+                            <a href="{{ route('clientes.edit', $cliente->id) }}">
+                                <button class="edit-button">Editar</button>
+                            </a>
+                            
+                            <!-- Formulario para eliminar cliente -->
+                            <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="delete-button">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 </body>
 </html>

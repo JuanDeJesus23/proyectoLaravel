@@ -77,11 +77,13 @@
             border-radius: 10px;
             object-fit: cover;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.6s ease, box-shadow 0.3s ease; /* Ajustar duración para un giro más suave */
+            transform-style: preserve-3d; /* Mantiene la perspectiva al girar */
         }
 
+        /* Efecto de giro completo al pasar el cursor */
         .miniaturas img:hover {
-            transform: scale(1.05);
+            transform: rotateX(360deg); /* Giro hacia arriba y abajo */
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
             border-color: #6366f1;
         }

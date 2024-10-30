@@ -72,9 +72,11 @@ class ClienteController extends Controller
     }
 
     #METODOS para probar IMAGICK
+    //MEtodo para la vista LISTARCLIENTES
     public function mostrarFormulario2()
     {
-        return view('buscar_cliente');
+        $clientes = Cliente::all(); // Obtener todos los clientes
+        return view('buscar_cliente', compact('clientes')); // Pasar la variable a la vista
     }
 
     public function buscarCliente(Request $request)
@@ -152,6 +154,156 @@ class ClienteController extends Controller
 
         return view('clientes_miniaturas', compact('clientes'));
     }
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    public function listarClientesConBoton()
+            {
+                $clientes = Cliente::all(); // Obtener todos los clientes
+                return view('clientes_lista', compact('clientes')); // Pasar la variable a la vista
+            }
+    // Dentro del ClienteController
+        public function mostrarFormularioImagen($id)
+            {
+                $clientes = Cliente::find($id);
+                
+                if (!$clientes) {
+                    return redirect()->back()->withErrors(['id' => 'Cliente no encontrado']);
+                }
+
+                return view('subir_imagen', compact('clientes')); // Asegúrate de que este es el nombre correcto de la vista
+            }
+
+            // Método para listar todos los clientes
+        public function index()
+            {
+                $clientes = Cliente::all(); // Obtiene todos los clientes
+                return view('buscar_cliente', compact('clientes')); // Pasa los clientes a la vista
+            }
+
+        // Métodos para editar y eliminar (agrega según sea necesario)
+        public function update(Request $request, $id)
+            {
+                // Validar los datos
+                $request->validate([
+                    'nombre' => 'required|string|max:255',
+                    'telefono' => 'required|string|max:255',
+                    'correo' => 'required|email|unique:clientes,correo,' . $id,
+                    'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:3072',
+                ]);
+
+                // Buscar el cliente
+                $cliente = Cliente::find($id);
+                if (!$cliente) {
+                    return redirect()->back()->with('error', 'Cliente no encontrado.');
+                }
+
+                // Actualizar datos del cliente
+                $cliente->nombre = $request->nombre;
+                $cliente->telefono = $request->telefono;
+                $cliente->correo = $request->correo;
+
+                // Procesar y actualizar la imagen si se carga una nueva
+                if ($request->hasFile('imagen')) {
+                    $imagen = new Imagick($request->file('imagen')->getPathname());
+
+                    // Redimensionar si es necesario
+                    if ($imagen->getImageWidth() > 1200) {
+                        $imagen->resizeImage(1200, 0, Imagick::FILTER_LANCZOS, 1);
+                    }
+
+                    // Guardar la imagen
+                    $path = 'public/' . $cliente->id . '_imagen.jpg';
+                    $imagen->writeImage(storage_path('app/' . $path));
+                    $cliente->imagen_url = Storage::url($path);
+
+                    // Generar miniaturas
+                    $this->crearMiniatura($imagen, $cliente->id, 100, 100);
+                    $this->crearMiniatura($imagen, $cliente->id, 300, 200);
+                    $this->crearMiniatura($imagen, $cliente->id, 400, 400);
+                    $imagen->destroy();
+                }
+
+                // Guardar los cambios
+                $cliente->save();
+
+                return redirect()->route('clientes.index')->with('success', 'Cliente actualizado con éxito');
+            }
+        
+        public function create()
+            {
+                return view('create');
+            }
+            
+        public function store(Request $request)
+            {
+                $request->validate([
+                    'nombre' => 'required|string|max:255',
+                    'telefono' => 'required|string|max:255',
+                    'correo' => 'required|email|unique:clientes,correo',
+                    'imagen_url' => 'nullable|image|mimes:jpeg,png,jpg|max:3072',
+                ]);
+            
+                // Inicializar imagen_url en NULL por defecto
+                $filePath = null;
+            
+                // Subir archivo si se proporciona
+                if ($request->hasFile('imagen_url')) {
+                    $filePath = $request->file('imagen_url')->store('clientes', 'public');
+                }
+            
+                // Insertar el cliente en la base de datos sin Eloquent
+                DB::insert('INSERT INTO clientes (nombre, telefono, correo, imagen_url, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())', [
+                    $request->nombre,
+                    $request->telefono,
+                    $request->correo,
+                    $filePath,
+                ]);
+            
+                return redirect()->route('clientes.index')->with('success', 'Cliente creado exitosamente');
+            }  
+            
+        public function formUpdate($id)
+            {
+                $cliente = Cliente::find($id);
+            
+                if (!$cliente) {
+                    return redirect()->back()->with('error', 'Cliente no encontrado.');
+                }
+            
+                return view('edit', compact('cliente'));
+            }
+            
+            //metodo para el boton VER DETALLES
+        public function mostrarCliente($id)
+            {
+                $cliente = Cliente::find($id);
+
+                if (!$cliente) {
+                    return redirect()->back()->with('error', 'Cliente no encontrado.');
+                }
+
+                return view('mostrar_cliente', compact('cliente')); // Asegúrate de que la vista existe
+            }
+
+        public function destroy($id)
+            {
+                    // Buscar el cliente
+                    $cliente = Cliente::find($id);
+                
+                    // Verificar si el cliente existe
+                    if (!$cliente) {
+                        return redirect()->back()->with('error', 'Cliente no encontrado.');
+                    }
+                
+                    // Eliminar el cliente
+                    $cliente->delete();
+                
+                    return redirect()->route('clientes.index');
+            }
 
 
 }   
