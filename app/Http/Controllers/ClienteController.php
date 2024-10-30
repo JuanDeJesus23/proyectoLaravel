@@ -292,24 +292,22 @@ class ClienteController extends Controller
         
             
             //metodo para el boton VER DETALLES
-        public function mostrarCliente($id, $hash)
+        public function mostrarCliente($id, Request $request)
             {
+                $hash = $request->query('id');  // Obtener el hash desde los parámetros de consulta
+            
+                // Generar el hash esperado
                 $hashGenerado = $this->generarHash($id);
             
+                // Validar el hash
                 if ($hash !== $hashGenerado) {
-                    return redirect()->route('clientes.index')->with('error', 'Acceso no autorizado.');
+                    return redirect()->route('clientes.manejar')->with('error', 'ACCESO NO AUTORIZADO.');
                 }
             
                 $cliente = Cliente::findOrFail($id);
                 return view('mostrar_cliente', compact('cliente'));
             }
             
-
-            
-            
-
-        
-
 #  - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - 
 
         public function generarHash($id)
@@ -321,25 +319,33 @@ class ClienteController extends Controller
                 return substr(strrev($hash), 0, 8);
             }   
 
-            public function manejarClientes(Request $request, $id = null, $hash = null)
+        public function manejarClientes(Request $request, $id = null, $hash = null)
             {
+                // Inicializar la variable hashes
+                $hashes = [];
+            
                 // Si se recibe un ID y un hash, intentamos mostrar el cliente específico
                 if ($id && $hash) {
                     $hashGenerado = $this->generarHash($id);
             
                     // Validar el hash recibido con el generado
                     if ($hash !== $hashGenerado) {
-                        return redirect()->route('clientes.index')->with('error', 'Acceso no autorizado.');
+                        return redirect()->route('clientes.manejar')->with('error', 'ACCESO NO AUTORIZADO.');
                     }
             
-                    // Obtener el cliente y mostrar la vista individual
-                    $cliente = Cliente::findOrFail($id);
+                    // Intentar obtener el cliente
+                    $cliente = Cliente::find($id);
+            
+                    // Verificar si el cliente existe
+                    if (!$cliente) {
+                        return redirect()->route('clientes.manejar')->with('error', 'Cliente no encontrado.');
+                    }
+            
                     return view('mostrar_cliente', compact('cliente'));
                 }
             
                 // Si no se recibe ID ni hash, generamos la lista completa de clientes con sus hashes
                 $clientes = Cliente::all();
-                $hashes = [];
             
                 foreach ($clientes as $cliente) {
                     $hashes[$cliente->id] = $this->generarHash($cliente->id);
@@ -348,6 +354,8 @@ class ClienteController extends Controller
                 // Mostrar la vista de lista de clientes
                 return view('buscar_cliente', compact('clientes', 'hashes'));
             }
+            
+            
             
 
 

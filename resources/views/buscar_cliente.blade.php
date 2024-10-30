@@ -83,10 +83,41 @@
         .view-button:hover {
             background-color: #0056b3;
         }
+        .alert {
+            background-color: #f44336; /* Color rojo */
+            color: white; /* Texto blanco */
+            padding: 15px; /* Espaciado */
+            position: relative; /* Para el posicionamiento */
+            margin-bottom: 15px; /* Espaciado inferior */
+            text-align: center;
+            font-size: 25px;
+            font-weight: bold; /* Esto hará que el texto sea negrita */
+        }
+
+        .alert .close {
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            color: white; /* Color del botón cerrar */
+            cursor: pointer; /* Cursor de puntero */
+        }
+
     </style>
 </head>
 <body>
+@if($clientes->isEmpty())
+    <p>No hay clientes disponibles.</p>
+@else
+    <!-- Aquí va tu tabla de clientes -->
+
+
     <div class="container">
+        <!-- Mensaje de error -->
+        @if(session('error'))
+            <div class="alert alert-danger" role="alert">
+                {{ session('error') }}
+            </div>
+        @endif
         <h1>LISTA DE CLIENTES</h1>
 
         <a href="{{ route('clientes.create') }}">
@@ -112,11 +143,10 @@
                         <td>{{ $cliente->correo }}</td>
                         <td>
                             <!-- Botón para ver detalles del cliente -->
-                            <a href="{{ route('clientes.mostrar', ['id' => $cliente->id, 'hash' => $hashes[$cliente->id]]) }}">
+                            <a href="{{ route('clientes.mostrar', ['id' => $cliente->id]) }}?id={{ $hashes[$cliente->id] }}">
                                 <button class="view-button">Ver Información</button>
-                            </a>                            
-                            
-
+                            </a>
+                                                     
                             <!-- Botón para editar cliente -->
                             <a href="{{ route('clientes.edit', $cliente->id) }}">
                                 <button class="edit-button">Editar</button>
@@ -134,5 +164,6 @@
             </tbody>
         </table>
     </div>
+    @endif
 </body>
 </html>
