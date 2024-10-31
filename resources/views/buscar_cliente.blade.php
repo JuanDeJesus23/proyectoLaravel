@@ -7,10 +7,17 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #e9ecef;
+            background-color: #000000;
             color: #343a40;
             margin: 0;
             padding: 20px;
+            background-image: url('{{ asset('img/hd-technology.jpg') }}'); /* Ruta a la imagen */
+            background-size: cover; /* Cubre toda la pantalla */
+            background-position: center; /* Centrar la imagen */
+            background-repeat: repeat; /* No repetir la imagen */
+            height: 100vh; /* Ocupa toda la pantalla */
+            margin: 0; /* Sin margen */
+            position: relative; /* Para posicionar la tira de colores */
         }
         .container {
             max-width: 1200px;
@@ -19,8 +26,10 @@
         }
         h1 {
             text-align: center;
-            color: #495057;
+            color: #ffffff;
             margin-bottom: 20px;
+            font-size:50px;
+
         }
         .client-list {
             display: grid; /* Cambia flex por grid para un mejor control de diseño */
