@@ -145,6 +145,7 @@
             </div>
         </div>
 
+        
 
         <form action="{{ route('clientes.subirImagen', $cliente->id) }}" method="POST" enctype="multipart/form-data">
             @csrf

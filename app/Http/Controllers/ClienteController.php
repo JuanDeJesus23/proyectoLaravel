@@ -222,7 +222,155 @@ class ClienteController extends Controller
             
 
         // Métodos para editar y eliminar (agrega según sea necesario)
-        public function update(Request $request, $id)
+        
+        
+        public function create()
+            {
+                return view('create');
+            }
+            
+        public function store(Request $request)
+            {
+                $request->validate([
+                    'nombre' => 'required|string|max:255',
+                    'telefono' => 'required|string|max:255',
+                    'correo' => 'required|email|unique:clientes,correo',
+                    'imagen_url' => 'nullable|image|mimes:jpeg,png,jpg|max:3072',
+                ]);
+            
+                // Inicializar imagen_url en NULL por defecto
+                $filePath = null;
+            
+                // Subir archivo si se proporciona
+                if ($request->hasFile('imagen_url')) {
+                    $filePath = $request->file('imagen_url')->store('clientes', 'public');
+                }
+            
+                // Insertar el cliente en la base de datos sin Eloquent
+                DB::insert('INSERT INTO clientes (nombre, telefono, correo, imagen_url, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())', [
+                    $request->nombre,
+                    $request->telefono,
+                    $request->correo,
+                    $filePath,
+                ]);
+            
+                return redirect()->route('clientes.index')->with('success', 'Cliente creado exitosamente');
+            }  
+            
+
+            
+        
+        public function destroy($id)
+            {
+                    // Buscar el cliente
+                    $cliente = Cliente::find($id);
+                
+                    // Verificar si el cliente existe
+                    if (!$cliente) {
+                        return redirect()->back()->with('error', 'Cliente no encontrado.');
+                    }
+                
+                    // Eliminar el cliente
+                    $cliente->delete();
+                
+                    return redirect()->route('clientes.index');
+            }
+
+            //MEtodo para la vista LISTARCLIENTES
+        
+            
+            //metodo para el boton VER DETALLES
+        public function mostrarCliente($id, Request $request)
+            {
+                $hash = $request->query('idsello');  // Obtener el hash desde los parámetros de consulta
+            
+                // Generar el hash esperado
+                $hashGenerado = $this->generarHash($id);
+            
+                // Validar el hash
+                if ($hash !== $hashGenerado) {
+                    return redirect()->route('clientes.manejar')->with('error', 'ACCESO NO AUTORIZADO DESDE MOSTRAR CLIENTE.');
+                }
+            
+                $cliente = Cliente::findOrFail($id);
+                return view('mostrar_cliente', compact('cliente'));
+            }
+            
+#  - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - 
+
+        public function generarHash($id)
+            {
+                $salt = env('URL_SALT');
+                $hash = hash('sha256', $salt . $id);
+                
+                // Tomar los 8 primeros caracteres de derecha a izquierda
+                return substr(strrev($hash), 0, 8);
+            }   
+
+            public function manejarClientes(Request $request, $id = null)
+            {
+                $hashes = [];
+                
+                // Obtener el hash de la consulta
+                $hash = $request->query('idsello');
+            
+                // Si se recibe un ID y un hash, intentamos mostrar el cliente específico
+                if ($id && $hash) {
+                    $hashGenerado = $this->generarHash($id);
+            
+                    // Validar el hash recibido con el generado
+                    if ($hash !== $hashGenerado) {
+                        return redirect()->route('clientes.manejar')->with('error', 'ACCESO NO AUTORIZADO.');
+                    }
+            
+                    // Intentar obtener el cliente
+                    $cliente = Cliente::find($id);
+            
+                    // Verificar si el cliente existe
+                    if (!$cliente) {
+                        return redirect()->route('clientes.manejar')->with('error', 'Cliente no encontrado.');
+                    }
+            
+                    return view('mostrar_cliente', compact('cliente'));
+                }
+            
+                // Si no se recibe ID ni hash, generamos la lista completa de clientes con sus hashes
+                $clientes = Cliente::all();
+            
+                foreach ($clientes as $cliente) {
+                    $hashes[$cliente->id] = $this->generarHash($cliente->id);
+                }
+            
+                // Mostrar la vista de lista de clientes
+                return view('buscar_cliente', compact('clientes', 'hashes'));
+            }
+            
+            
+            
+# - - - - - - -  - - - - - - - - - - - - - - - - - - -  -UPDATE
+    public function formUpdate($id, Request $request)
+    {
+        $hash = $request->query('idsello');
+        // Generar el hash esperado
+        $hashGenerado = $this->generarHash($id);
+            
+        // Validar el hash
+        if ($hash !== $hashGenerado) {
+            return redirect()->route('clientes.manejar')->with('error', 'ACCESO NO AUTORIZADO DESDE EDICION.');
+        }
+
+        // Buscar el cliente
+        $cliente = Cliente::find($id);
+        if (!$cliente) {
+            return redirect()->route('clientes.manejar')->with('error', 'Cliente no encontrado.');
+        }
+
+        return view('clientes.edit', compact('cliente', 'hashGenerado'));
+    }
+  
+
+
+    public function update(Request $request, $id)
             {
                 // Validar 'idsello'
                 $idsello = $request->query('idsello');
@@ -277,145 +425,7 @@ class ClienteController extends Controller
 
                 return redirect()->route('clientes.index')->with('success', 'Cliente actualizado con éxito');
             }
-        
-        public function create()
-            {
-                return view('create');
-            }
-            
-        public function store(Request $request)
-            {
-                $request->validate([
-                    'nombre' => 'required|string|max:255',
-                    'telefono' => 'required|string|max:255',
-                    'correo' => 'required|email|unique:clientes,correo',
-                    'imagen_url' => 'nullable|image|mimes:jpeg,png,jpg|max:3072',
-                ]);
-            
-                // Inicializar imagen_url en NULL por defecto
-                $filePath = null;
-            
-                // Subir archivo si se proporciona
-                if ($request->hasFile('imagen_url')) {
-                    $filePath = $request->file('imagen_url')->store('clientes', 'public');
-                }
-            
-                // Insertar el cliente en la base de datos sin Eloquent
-                DB::insert('INSERT INTO clientes (nombre, telefono, correo, imagen_url, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())', [
-                    $request->nombre,
-                    $request->telefono,
-                    $request->correo,
-                    $filePath,
-                ]);
-            
-                return redirect()->route('clientes.index')->with('success', 'Cliente creado exitosamente');
-            }  
-            
-        public function formUpdate($id)
-        {
-            $cliente = Cliente::find($id);
 
-            // Si el cliente no se encuentra, redirige al índice
-            if (!$cliente) {
-                return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado.');
-            }
-            
-            // Generar el hash 'idsello' para el cliente
-            $idsello = substr(hash('sha256', $cliente->id . config('app.url_salt')), -8);
-            
-            return view('edit', compact('cliente', 'idsello'));
-        }
-
-            
-        
-        public function destroy($id)
-            {
-                    // Buscar el cliente
-                    $cliente = Cliente::find($id);
-                
-                    // Verificar si el cliente existe
-                    if (!$cliente) {
-                        return redirect()->back()->with('error', 'Cliente no encontrado.');
-                    }
-                
-                    // Eliminar el cliente
-                    $cliente->delete();
-                
-                    return redirect()->route('clientes.index');
-            }
-
-            //MEtodo para la vista LISTARCLIENTES
-        
-            
-            //metodo para el boton VER DETALLES
-        public function mostrarCliente($id, Request $request)
-            {
-                $hash = $request->query('idsello');  // Obtener el hash desde los parámetros de consulta
-            
-                // Generar el hash esperado
-                $hashGenerado = $this->generarHash($id);
-            
-                // Validar el hash
-                if ($hash !== $hashGenerado) {
-                    return redirect()->route('clientes.manejar')->with('error', 'ACCESO NO AUTORIZADO.');
-                }
-            
-                $cliente = Cliente::findOrFail($id);
-                return view('mostrar_cliente', compact('cliente'));
-            }
-            
-#  - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - 
-
-        public function generarHash($id)
-            {
-                $salt = env('URL_SALT');
-                $hash = hash('sha256', $salt . $id);
-                
-                // Tomar los 8 primeros caracteres de derecha a izquierda
-                return substr(strrev($hash), 0, 8);
-            }   
-
-            public function manejarClientes(Request $request, $id = null)
-            {
-                // Inicializar la variable hashes
-                $hashes = [];
-            
-                // Obtener el hash de la consulta
-                $hash = $request->query('idsello'); // Cambiar 'id' a 'idsello'
-            
-                // Si se recibe un ID y un hash, intentamos mostrar el cliente específico
-                if ($id && $hash) {
-                    $hashGenerado = $this->generarHash($id);
-            
-                    // Validar el hash recibido con el generado
-                    if ($hash !== $hashGenerado) {
-                        return redirect()->route('clientes.manejar')->with('error', 'ACCESO NO AUTORIZADO.');
-                    }
-            
-                    // Intentar obtener el cliente
-                    $cliente = Cliente::find($id);
-            
-                    // Verificar si el cliente existe
-                    if (!$cliente) {
-                        return redirect()->route('clientes.manejar')->with('error', 'Cliente no encontrado.');
-                    }
-            
-                    return view('mostrar_cliente', compact('cliente'));
-                }
-            
-                // Si no se recibe ID ni hash, generamos la lista completa de clientes con sus hashes
-                $clientes = Cliente::all();
-            
-                foreach ($clientes as $cliente) {
-                    $hashes[$cliente->id] = $this->generarHash($cliente->id);
-                }
-            
-                // Mostrar la vista de lista de clientes
-                return view('buscar_cliente', compact('clientes', 'hashes'));
-            }
-            
-            
-            
             
 
 

@@ -130,19 +130,19 @@
                     </div>
         
                     <div class="action-buttons">
-                        <a href="{{ route('clientes.mostrar', ['id' => $cliente->id]) }}?idsello={{ $hashes[$cliente->id] }}">
+                        <a href="{{ route('clientes.mostrar', ['id' => $cliente->id, 'idsello' => $hashes[$cliente->id]]) }}">
                             <button class="view-button">Ver Información</button>
                         </a>
-                        <a href="{{ route('clientes.edit', ['id' => $cliente->id, 'idsello' => $idsello]) }}">
+                        <a href="{{ route('clientes.edit', ['id' => $cliente->id, 'idsello' => $hashes[$cliente->id]]) }}">
                             <button class="edit-button">Editar</button>
                         </a>
-                        <!-- Formulario para eliminar cliente -->
                         <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="delete-button">Eliminar</button>
                         </form>
                     </div>
+                    
                 </div>
             @endforeach
         </div>

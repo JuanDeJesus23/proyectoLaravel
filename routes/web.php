@@ -91,3 +91,4 @@ Route::get('/listadeclientes', [ClienteController::class, 'manejarClientes'])->n
 
 // Mostrar el formulario de edición
 Route::get('/clientes/{id}/edit', [ClienteController::class, 'formUpdate'])->name('clientes.edit');
+Route::put('/clientes/{id}/edit', [ClienteController::class, 'update'])->name('clientes.update');

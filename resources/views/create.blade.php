@@ -13,7 +13,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: auto;
             background: #fff;
             padding: 20px;
@@ -54,7 +54,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Crear Cliente</h1>
+        <h1>CREAR CLIENTE</h1>
         <form action="{{ route('clientes.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <label for="nombre">Nombre:</label>
@@ -66,8 +66,6 @@
             <label for="correo">Correo:</label>
             <input type="email" id="correo" name="correo" required>
 
-            <label for="imagen_url">Imagen:</label>
-            <input type="file" id="imagen_url" name="imagen_url" accept="image/jpeg,image/png">
 
             <button type="submit">Guardar Cliente</button>
         </form>
