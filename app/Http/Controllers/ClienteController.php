@@ -86,55 +86,49 @@ class ClienteController extends Controller
     }
 //- - - - - - - - - - - -  --  - -- - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - -  - - - - - -  - - 
     public function subirImagen(Request $request, $id)
-        {
-            $request->validate([
-                'imagen' => 'required|image|mimes:jpg,png|max:3072' // Asegúrate de incluir la validación de tamaño
-            ]);
+    {
+        $request->validate([
+            'imagen' => 'required|image|mimes:jpg,png|max:3072'
+        ]);
 
-            $cliente = Cliente::find($id);
+        $cliente = Cliente::find($id);
 
-            if ($cliente) {
-                // Procesar la imagen solo si es válida
-                if ($request->file('imagen')->isValid()) {
-                    $imagen = new Imagick($request->file('imagen')->getPathname());
-                    
-                    // Obtener las dimensiones originales
-                    $anchoOriginal = $imagen->getImageWidth();
-                    $altoOriginal = $imagen->getImageHeight();
-                    
-                    // Definir dimensiones del recorte para la imagen principal
-                    $anchoDeseado = 1200; // Cambia esto a lo que necesites
-                    $altoDeseado = 800; // Cambia esto a lo que necesites
+        if ($cliente) {
+            // Procesar la imagen solo si es válida
+            if ($request->file('imagen')->isValid()) {
+                $imagen = new Imagick($request->file('imagen')->getPathname());
 
-                    // Calcular el punto de inicio para el recorte
-                    $x = ($anchoOriginal - $anchoDeseado) / 2;
-                    $y = ($altoOriginal - $altoDeseado) / 2;
+                // Obtener el ancho original
+                $anchoOriginal = $imagen->getImageWidth();
 
-                    // Realizar el recorte para la imagen principal
-                    $imagen->cropImage($anchoDeseado, $altoDeseado, $x, $y);
-
-                    // Almacenar la imagen procesada
-                    $path = 'public/' . $cliente->id . '_imagen.jpg'; // Define un nombre de archivo
-                    $imagen->writeImage(storage_path('app/' . $path)); // Guarda la imagen procesada
-                    
-                    // Generar miniaturas
-                    $this->crearMiniatura($imagen, $cliente->id, 100, 100);
-                    $this->crearMiniatura($imagen, $cliente->id, 300, 200);
-                    $this->crearMiniatura($imagen, $cliente->id, 400, 400);
-                    
-                    $imagen->destroy(); // Destruir la instancia de Imagick
-                    
-                    // Obtener la URL de la imagen guardada
-                    $url = Storage::url($path);
-                    $cliente->imagen_url = $url;
-                    $cliente->save();
-
-                    return redirect()->route('clientes.manejar')->with('success', 'Imagen subida con éxito');
+                // Redimensionar solo si el ancho es mayor a 1200 píxeles
+                if ($anchoOriginal > 1200) {
+                    $imagen->thumbnailImage(1200, 0); // Ajustar el ancho a 1200 y mantener la proporción
                 }
-            }
 
-            return redirect()->back()->with('error', 'Cliente no encontrado o imagen no válida.');
+                // Almacenar la imagen procesada
+                $path = 'public/' . $cliente->id . '_imagen.jpg';
+                $imagen->writeImage(storage_path('app/' . $path));
+
+                // Generar miniaturas
+                $this->crearMiniatura($imagen, $cliente->id, 100, 100);
+                $this->crearMiniatura($imagen, $cliente->id, 300, 200);
+                $this->crearMiniatura($imagen, $cliente->id, 400, 400);
+
+                $imagen->destroy();
+
+                // Guardar la URL de la imagen en la base de datos
+                $url = Storage::url($path);
+                $cliente->imagen_url = $url;
+                $cliente->save();
+
+                return redirect()->route('clientes.manejar')->with('success', 'Imagen subida con éxito');
+            }
         }
+
+        return redirect()->back()->with('error', 'Cliente no encontrado o imagen no válida.');
+    }
+
 
     private function crearMiniatura($imagen, $clienteId, $ancho, $alto)
         {
@@ -334,7 +328,7 @@ class ClienteController extends Controller
             //metodo para el boton VER DETALLES
         public function mostrarCliente($id, Request $request)
             {
-                $hash = $request->query('id');  // Obtener el hash desde los parámetros de consulta
+                $hash = $request->query('idsello');  // Obtener el hash desde los parámetros de consulta
             
                 // Generar el hash esperado
                 $hashGenerado = $this->generarHash($id);
@@ -359,10 +353,13 @@ class ClienteController extends Controller
                 return substr(strrev($hash), 0, 8);
             }   
 
-        public function manejarClientes(Request $request, $id = null, $hash = null)
+            public function manejarClientes(Request $request, $id = null)
             {
                 // Inicializar la variable hashes
                 $hashes = [];
+            
+                // Obtener el hash de la consulta
+                $hash = $request->query('idsello'); // Cambiar 'id' a 'idsello'
             
                 // Si se recibe un ID y un hash, intentamos mostrar el cliente específico
                 if ($id && $hash) {
@@ -394,6 +391,7 @@ class ClienteController extends Controller
                 // Mostrar la vista de lista de clientes
                 return view('buscar_cliente', compact('clientes', 'hashes'));
             }
+            
             
             
             

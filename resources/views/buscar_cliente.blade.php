@@ -143,7 +143,7 @@
                         <td>{{ $cliente->correo }}</td>
                         <td>
                             <!-- Botón para ver detalles del cliente -->
-                            <a href="{{ route('clientes.mostrar', ['id' => $cliente->id]) }}?id={{ $hashes[$cliente->id] }}">
+                            <a href="{{ route('clientes.mostrar', ['id' => $cliente->id]) }}?idsello={{ $hashes[$cliente->id] }}">
                                 <button class="view-button">Ver Información</button>
                             </a>
                                                      
