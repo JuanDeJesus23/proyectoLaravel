@@ -84,63 +84,103 @@ class ClienteController extends Controller
 
         return view('mostrar_cliente', compact('cliente'));
     }
-
+//- - - - - - - - - - - -  --  - -- - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - -  - - - - - -  - - 
     public function subirImagen(Request $request, $id)
-    {
-        $request->validate([
-            'imagen' => 'required|image|mimes:jpg,png' // 3MB
-        ]);
-        /*Validación de la imagen: Se valida la solicitud para asegurarse de que el campo imagen está presente (required), es una imagen (image), tiene uno de los formatos permitidos (mimes:jpg,png), y no supera los 3 MB (max:3072).*/
+        {
+            $request->validate([
+                'imagen' => 'required|image|mimes:jpg,png|max:3072' // Asegúrate de incluir la validación de tamaño
+            ]);
 
-        $cliente = Cliente::find($id);
+            $cliente = Cliente::find($id);
 
-        if ($cliente) {
-            // Procesar la imagen solo si es válida
-            if ($request->file('imagen')->isValid()) {
-                $imagen = new Imagick($request->file('imagen')->getPathname());
-            
-                // Redimensionar
-                if ($imagen->getImageWidth() > 1200) {
-                    $imagen->resizeImage(1200, 0, Imagick::FILTER_LANCZOS, 1);
+            if ($cliente) {
+                // Procesar la imagen solo si es válida
+                if ($request->file('imagen')->isValid()) {
+                    $imagen = new Imagick($request->file('imagen')->getPathname());
+                    
+                    // Obtener las dimensiones originales
+                    $anchoOriginal = $imagen->getImageWidth();
+                    $altoOriginal = $imagen->getImageHeight();
+                    
+                    // Definir dimensiones del recorte para la imagen principal
+                    $anchoDeseado = 1200; // Cambia esto a lo que necesites
+                    $altoDeseado = 800; // Cambia esto a lo que necesites
+
+                    // Calcular el punto de inicio para el recorte
+                    $x = ($anchoOriginal - $anchoDeseado) / 2;
+                    $y = ($altoOriginal - $altoDeseado) / 2;
+
+                    // Realizar el recorte para la imagen principal
+                    $imagen->cropImage($anchoDeseado, $altoDeseado, $x, $y);
+
+                    // Almacenar la imagen procesada
+                    $path = 'public/' . $cliente->id . '_imagen.jpg'; // Define un nombre de archivo
+                    $imagen->writeImage(storage_path('app/' . $path)); // Guarda la imagen procesada
+                    
+                    // Generar miniaturas
+                    $this->crearMiniatura($imagen, $cliente->id, 100, 100);
+                    $this->crearMiniatura($imagen, $cliente->id, 300, 200);
+                    $this->crearMiniatura($imagen, $cliente->id, 400, 400);
+                    
+                    $imagen->destroy(); // Destruir la instancia de Imagick
+                    
+                    // Obtener la URL de la imagen guardada
+                    $url = Storage::url($path);
+                    $cliente->imagen_url = $url;
+                    $cliente->save();
+
+                    return redirect()->route('clientes.manejar')->with('success', 'Imagen subida con éxito');
                 }
-                
-                // Almacenar la imagen procesada
-                $path = 'public/' . $cliente->id . '_imagen.jpg'; // Define un nombre de archivo
-                $imagen->writeImage(storage_path('app/' . $path)); // Guarda la imagen procesada
-                
-                // Generar miniaturas
-                $this->crearMiniatura($imagen, $cliente->id, 100, 100);
-                $this->crearMiniatura($imagen, $cliente->id, 300, 200);
-                $this->crearMiniatura($imagen, $cliente->id, 400, 400);
-                
-                $imagen->destroy(); // Destruir la instancia de Imagick
-                
-                // Obtener la URL de la imagen guardada
-                $url = Storage::url($path);
-                $cliente->imagen_url = $url;
-                $cliente->save();
-
-                return redirect()->route('clientes.buscar')->with('success', 'Imagen subida con éxito');
             }
+
+            return redirect()->back()->with('error', 'Cliente no encontrado o imagen no válida.');
         }
 
-        return redirect()->back()->with('error', 'Cliente no encontrado o imagen no válida.');
-    }
-
     private function crearMiniatura($imagen, $clienteId, $ancho, $alto)
-    {
-        // Clonar la imagen original
-        $miniatura = clone $imagen;
+        {
+            // Clonar la imagen original
+            $miniatura = clone $imagen;
 
-        // Redimensionar y recortar la imagen para obtener la miniatura
-        $miniatura->thumbnailImage($ancho, $alto, true); // true para mantener la proporción
-        $miniatura->cropImage($ancho, $alto, 0, 0); // Ajustar el recorte según sea necesario
-                                                    //0, 0 coordenadas desde donde comenzaará el recorte
-        // Guardar la miniatura
-        $pathMiniatura = "public/{$clienteId}_miniatura_{$ancho}x{$alto}.jpg"; // Define un nombre de archivo
-        $miniatura->writeImage(storage_path('app/' . $pathMiniatura)); // Guarda la miniatura procesada
-        $miniatura->destroy(); // Destruir la instancia de la miniatura
-    }
+            // Obtener dimensiones de la imagen original
+            $anchoOriginal = $miniatura->getImageWidth();
+            $altoOriginal = $miniatura->getImageHeight();
+
+            // Calcular el punto de inicio para el recorte
+            // Para mantener el aspecto de la miniatura, recortamos la parte superior e inferior o los lados
+            if ($anchoOriginal / $altoOriginal > $ancho / $alto) {
+                // La imagen es más ancha que la proporción de la miniatura
+                $nuevoAlto = $altoOriginal; // Mantener el alto original
+                $nuevoAncho = $altoOriginal * ($ancho / $alto); // Ajustar ancho
+
+                // Calcular el punto de inicio para el recorte centrado
+                $x = ($anchoOriginal - $nuevoAncho) / 2;
+                $y = 0; // Desde la parte superior
+
+                // Recortar la imagen
+                $miniatura->cropImage($nuevoAncho, $nuevoAlto, $x, $y);
+            } else {
+                // La imagen es más alta que la proporción de la miniatura
+                $nuevoAncho = $anchoOriginal; // Mantener el ancho original
+                $nuevoAlto = $anchoOriginal * ($alto / $ancho); // Ajustar alto
+
+                // Calcular el punto de inicio para el recorte centrado
+                $x = 0; // Desde el lado izquierdo
+                $y = ($altoOriginal - $nuevoAlto) / 2;
+
+                // Recortar la imagen
+                $miniatura->cropImage($nuevoAncho, $nuevoAlto, $x, $y);
+            }
+
+            // Redimensionar la miniatura a las dimensiones deseadas
+            $miniatura->thumbnailImage($ancho, $alto, true); // true para mantener la proporción
+
+            // Guardar la miniatura
+            $pathMiniatura = "public/{$clienteId}_miniatura_{$ancho}x{$alto}.jpg"; // Define un nombre de archivo
+            $miniatura->writeImage(storage_path('app/' . $pathMiniatura)); // Guarda la miniatura procesada
+            $miniatura->destroy(); // Destruir la instancia de la miniatura
+        }
+
+//- - - - - - - - - - - -  --  - -- - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - -  - - - - - -  - - 
 
     public function listarClientesConMiniaturas()
     {

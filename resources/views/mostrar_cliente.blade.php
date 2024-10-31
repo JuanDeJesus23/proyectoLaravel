@@ -77,6 +77,7 @@
     </style>
 </head>
 <body>
+
     <div class="container">
         <h1>IINFORMACIÓN DEL CLIENTE - MOSTRAR CLIENTE</h1>
         <div class="info">
