@@ -365,7 +365,7 @@ class ClienteController extends Controller
             return redirect()->route('clientes.manejar')->with('error', 'Cliente no encontrado.');
         }
 
-        return view('clientes.edit', compact('cliente', 'hashGenerado'));
+        return view('edit', compact('cliente', 'hashGenerado'));
     }
   
 

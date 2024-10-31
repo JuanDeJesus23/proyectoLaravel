@@ -84,7 +84,7 @@
     <div class="container">
         <h1>Editar Información del Cliente</h1>
 
-        <form action="{{ route('clientes.update', ['id' => $cliente->id]) }}?id={{ substr(hash('sha256', $cliente->id . config('app.url_salt')), -8) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('clientes.update', ['id' => $cliente->id]) }}?idsello={{ substr(hash('sha256', $cliente->id . config('app.url_salt')), -8) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             

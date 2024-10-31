@@ -53,7 +53,6 @@
         }
         .client-image {
             width: 100px; /* Ancho de la imagen */
-            height: 100px; /* Alto de la imagen */
             border-radius: 10px; /* Cambia a esquinas redondeadas */
             object-fit: cover;
             margin-bottom: 10px; /* Espacio entre imagen y texto */
@@ -144,7 +143,7 @@
                         </a>
                         <a href="{{ route('clientes.edit', ['id' => $cliente->id, 'idsello' => $hashes[$cliente->id]]) }}">
                             <button class="edit-button">Editar</button>
-                        </a>
+                        </a>                        
                         <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')

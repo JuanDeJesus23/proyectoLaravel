@@ -70,13 +70,6 @@ Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.st
 
 
 
-// Actualizar el cliente
-Route::put('/clientes/{cliente}', [ClienteController::class, 'update'])->name('clientes.update');
-#Route::get('/clientes/{cliente}/edit', [ClienteController::class, 'edit'])->name('clientes.edit');
-
-
-
-
 // Mostrar detalles del cliente
 Route::get('/clientes/{id}/{hash}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar_cliente');
 
@@ -90,5 +83,5 @@ Route::get('/clientes/{id}', [ClienteController::class, 'mostrarCliente'])->name
 Route::get('/listadeclientes', [ClienteController::class, 'manejarClientes'])->name('clientes.manejar');
 
 // Mostrar el formulario de edición
-Route::get('/clientes/{id}/edit', [ClienteController::class, 'formUpdate'])->name('clientes.edit');
-Route::put('/clientes/{id}/edit', [ClienteController::class, 'update'])->name('clientes.update');
+Route::get('/edit/{id}', [ClienteController::class, 'formUpdate'])->name('clientes.edit');
+Route::put('/edit/{id}', [ClienteController::class, 'update'])->name('clientes.update');
