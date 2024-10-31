@@ -66,7 +66,7 @@
             transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #fba0f5;
         }
         .success {
             color: green;
@@ -74,12 +74,46 @@
             text-align: center;
             margin-top: 10px;
         }
+        .edit-button {
+            background-color: #ffc107;
+            color: white;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        .create-button {
+            background-color: #28a745;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 20px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+        a {
+            text-decoration: none;
+        }
+        .view-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .view-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>IINFORMACIÓN DEL CLIENTE - MOSTRAR CLIENTE</h1>
+        <h1>INFORMACIÓN DEL CLIENTE</h1>
         <div class="info">
             <strong>Nombre:</strong> {{ $cliente->nombre }}<br/><br/>
             <strong>Teléfono:</strong> {{ $cliente->telefono }}<br/><br/>
@@ -110,6 +144,7 @@
                      width="400" height="400">
             </div>
         </div>
+
 
         <form action="{{ route('clientes.subirImagen', $cliente->id) }}" method="POST" enctype="multipart/form-data">
             @csrf

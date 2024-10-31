@@ -84,7 +84,7 @@
     <div class="container">
         <h1>Editar Información del Cliente</h1>
 
-        <form action="{{ route('clientes.update', $cliente->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('clientes.update', ['cliente' => $cliente->id, 'idsello' => $idsello]) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             

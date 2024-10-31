@@ -68,11 +68,14 @@ Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.ind
 Route::get('/clientes/create', [ClienteController::class, 'create'])->name('clientes.create');
 Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
 
-// Mostrar el formulario de edición
-Route::get('/clientes/{id}/edit', [ClienteController::class, 'formUpdate'])->name('clientes.edit');
+
 
 // Actualizar el cliente
-Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
+Route::put('/clientes/{cliente}', [ClienteController::class, 'update'])->name('clientes.update');
+#Route::get('/clientes/{cliente}/edit', [ClienteController::class, 'edit'])->name('clientes.edit');
+
+
+
 
 // Mostrar detalles del cliente
 Route::get('/clientes/{id}/{hash}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar_cliente');
@@ -86,4 +89,5 @@ Route::get('/clientes/{id}', [ClienteController::class, 'mostrarCliente'])->name
 
 Route::get('/listadeclientes', [ClienteController::class, 'manejarClientes'])->name('clientes.manejar');
 
-
+// Mostrar el formulario de edición
+Route::get('/clientes/{id}/edit', [ClienteController::class, 'formUpdate'])->name('clientes.edit');

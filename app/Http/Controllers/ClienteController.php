@@ -208,14 +208,31 @@ class ClienteController extends Controller
 
             // Método para listar todos los clientes
         public function index()
-            {
-                $clientes = Cliente::all(); // Obtiene todos los clientes
-                return view('buscar_cliente', compact('clientes')); // Pasa los clientes a la vista
+        {
+            $clientes = Cliente::all();
+            $hashes = [];
+        
+            foreach ($clientes as $cliente) {
+                // Genera el hash como lo tienes configurado en tu proyecto
+                $hashes[$cliente->id] = substr(hash('sha256', $cliente->id . config('app.url_salt')), -8);
             }
+        
+            return view('buscar_cliente', compact('clientes', 'hashes'));
+        }
+            
 
         // Métodos para editar y eliminar (agrega según sea necesario)
         public function update(Request $request, $id)
             {
+                // Validar 'idsello'
+                $idsello = $request->query('idsello');
+                $expectedIdsello = substr(hash('sha256', $id . config('app.url_salt')), -8);
+
+                if ($idsello !== $expectedIdsello) {
+                    return redirect()->route('clientes.index')->with('error', 'Acceso no autorizado.');
+                }
+
+
                 // Validar los datos
                 $request->validate([
                     'nombre' => 'required|string|max:255',
@@ -227,9 +244,8 @@ class ClienteController extends Controller
                 // Buscar el cliente
                 $cliente = Cliente::find($id);
                 if (!$cliente) {
-                    return redirect()->back()->with('error', 'Cliente no encontrado.');
+                    return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado.');
                 }
-
                 // Actualizar datos del cliente
                 $cliente->nombre = $request->nombre;
                 $cliente->telefono = $request->telefono;
@@ -296,15 +312,21 @@ class ClienteController extends Controller
             }  
             
         public function formUpdate($id)
-            {
-                $cliente = Cliente::find($id);
-            
-                if (!$cliente) {
-                    return redirect()->back()->with('error', 'Cliente no encontrado.');
-                }
-            
-                return view('edit', compact('cliente'));
+        {
+            $cliente = Cliente::find($id);
+
+            // Si el cliente no se encuentra, redirige al índice
+            if (!$cliente) {
+                return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado.');
             }
+            
+            // Generar el hash 'idsello' para el cliente
+            $idsello = substr(hash('sha256', $cliente->id . config('app.url_salt')), -8);
+            
+            return view('edit', compact('cliente', 'idsello'));
+        }
+
+            
         
         public function destroy($id)
             {
