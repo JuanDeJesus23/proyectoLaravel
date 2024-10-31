@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HomeController;
 use App\Http\Middleware\RefreshSessionTTL;
 
 Route::get('/hola', [ClienteController::class, 'mostrarHola']);
@@ -85,3 +86,6 @@ Route::get('/listadeclientes', [ClienteController::class, 'manejarClientes'])->n
 // Mostrar el formulario de edición
 Route::get('/edit/{id}', [ClienteController::class, 'formUpdate'])->name('clientes.edit');
 Route::put('/edit/{id}', [ClienteController::class, 'update'])->name('clientes.update');
+
+//ruta del juego de la vivorita
+Route::get('/juego/vibora', [HomeController::class, 'snakeGame'])->name('juego.vibora');
