@@ -126,9 +126,6 @@
 
         <div class="client-list">
             @foreach ($clientes as $cliente)
-                @php
-                    $idsello = substr(hash('sha256', $cliente->id . config('app.url_salt')), -8);
-                @endphp
                 <div class="client-card">
                     <img src="{{ $cliente->imagen_url }}?{{ time() }}" alt="Imagen del Cliente" class="client-image">
                     <div class="client-info">

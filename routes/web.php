@@ -68,24 +68,29 @@ Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.ind
 //CRUD
 Route::get('/clientes/create', [ClienteController::class, 'create'])->name('clientes.create');
 Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
-
-
-
 // Mostrar detalles del cliente
 Route::get('/clientes/{id}/{hash}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar_cliente');
 
-// Eliminar un cliente
-Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
-
-//SALT, ruta que recomendo chat
-//Route::get('/clientes/{id}/detalle', [ClienteController::class, 'mostrarDetalles'])->name('clientes.hash');
-Route::get('/clientes/{id}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar');
+#- - - - - - - - - - - -  - - - - - - - - - - - - - -  - - - - - - - - - - - - - - -  - -- - - - 
+#- - - - - - - - - - - -  - - - - - - - - - - - - - -  - - - - - - - - - - - - - - -  - -- - - - 
 
 Route::get('/listadeclientes', [ClienteController::class, 'manejarClientes'])->name('clientes.manejar');
 
+//SALT, ruta que recomendo chat
+//Route::get('/clientes/{id}/detalle', [ClienteController::class, 'mostrarDetalles'])->name('clientes.hash');
+Route::get('/informacionCliente/{id}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar');
+
 // Mostrar el formulario de edición
-Route::get('/edit/{id}', [ClienteController::class, 'formUpdate'])->name('clientes.edit');
+Route::get('/formularioEditar/{id}', [ClienteController::class, 'formUpdate'])->name('clientes.edit');
 Route::put('/edit/{id}', [ClienteController::class, 'update'])->name('clientes.update');
+
+// Eliminar un cliente
+Route::delete('/eliminar/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+
+
+
+
+
 
 //ruta del juego de la vivorita
 Route::get('/juego/vibora', [HomeController::class, 'snakeGame'])->name('juego.vibora');

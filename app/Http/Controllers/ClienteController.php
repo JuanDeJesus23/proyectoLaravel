@@ -296,7 +296,7 @@ class ClienteController extends Controller
         return view('mostrar_cliente', compact('cliente'));
     }
             
-#  - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - 
+#  - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - -  - - - - - - - - - -
 
     public function generarHash($id)
     {
@@ -315,7 +315,8 @@ class ClienteController extends Controller
         $hash = $request->query('idsello');
     
         // Si se recibe un ID y un hash, intentamos mostrar el cliente específico
-        if ($id && $hash) {
+        if ($id && $hash) 
+        {
             $hashGenerado = $this->generarHash($id);
     
             // Validar el hash recibido con el generado
@@ -347,7 +348,7 @@ class ClienteController extends Controller
             
             
             
-# - - - - - - -  - - - - - - - - - - - - - - - - - - -  -UPDATE
+# - - - - - - -  - - - - - - - - - - - - - - - - - - -  -UPDATE - - - - - - - - - - - - - -- - 
     public function formUpdate($id, Request $request)
     {
         $hash = $request->query('idsello');
