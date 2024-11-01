@@ -62,19 +62,19 @@ Route::post('/subir-imagen/{id}', [ClienteController::class, 'subirImagen'])->na
 Route::get('/clientes-miniaturas', [ClienteController::class, 'listarClientesConMiniaturas'])->name('clientes.miniaturas');
 
 //nuevas rutas para práctica de 29-10-2024
-Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
+//Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
 //Route::get('/clientes/edit/{id}', [ClienteController::class, 'edit'])->name('clientes.edit');
 
 //CRUD
 Route::get('/clientes/create', [ClienteController::class, 'create'])->name('clientes.create');
-Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
+Route::post('/clientesStore', [ClienteController::class, 'store'])->name('clientes.store');
 // Mostrar detalles del cliente
 Route::get('/clientes/{id}/{hash}', [ClienteController::class, 'mostrarCliente'])->name('clientes.mostrar_cliente');
 
 #- - - - - - - - - - - -  - - - - - - - - - - - - - -  - - - - - - - - - - - - - - -  - -- - - - 
 #- - - - - - - - - - - -  - - - - - - - - - - - - - -  - - - - - - - - - - - - - - -  - -- - - - 
 
-Route::get('/listadeclientes', [ClienteController::class, 'manejarClientes'])->name('clientes.manejar');
+Route::get('/clientes', [ClienteController::class, 'manejarClientes'])->name('clientes.manejar');
 
 //SALT, ruta que recomendo chat
 //Route::get('/clientes/{id}/detalle', [ClienteController::class, 'mostrarDetalles'])->name('clientes.hash');
@@ -86,11 +86,7 @@ Route::put('/edit/{id}', [ClienteController::class, 'update'])->name('clientes.u
 
 // Eliminar un cliente
 Route::delete('/eliminar/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
-
-
-
-
-
-
-//ruta del juego de la vivorita
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --  - -- - - - - - -- - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --  - -- - - - - - -- - - - - - -
+//ruta del juego de la viborita
 Route::get('/juego/vibora', [HomeController::class, 'snakeGame'])->name('juego.vibora');
