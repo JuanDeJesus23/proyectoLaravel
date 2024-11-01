@@ -200,7 +200,7 @@ class ClienteController extends Controller
         $clientes = Cliente::find($id);
         
         if (!$clientes) {
-            return redirect()->back()->withErrors(['id' => 'Cliente no encontrado']);
+            return redirect()->back()->withErrors(['id' => 'CLIENTE NO ENCONTRADO']);
         }
 
         return view('subir_imagen', compact('clientes')); // Asegúrate de que este es el nombre correcto de la vista
@@ -254,27 +254,40 @@ class ClienteController extends Controller
             $filePath,
         ]);
     
-        return redirect()->route('clientes.index')->with('success', 'Cliente creado exitosamente');
+        return redirect()->route('clientes.index')->with('success', 'CLIENTE CREADO CON ÉXITO');
     }  
             
 
             
         
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
-            // Buscar el cliente
-            $cliente = Cliente::find($id);
+        // Obtener 'idsello' de la URL
+        $idsello = $request->query('idsello');
+
+        // Generar el hash esperado para este ID
+        $expectedIdsello = $this->generarHash($id);
+
+        // Verificar que el hash sea correcto
+        if ($idsello !== $expectedIdsello) {
+            return redirect()->route('clientes.index')->with('error', 'ACCESO NO AUTORIZADO DESDE ELIMINACIÓN.');
+        }
+
+        // Buscar el cliente
+        $cliente = Cliente::find($id);
         
-            // Verificar si el cliente existe
-            if (!$cliente) {
-                return redirect()->back()->with('error', 'Cliente no encontrado.');
-            }
+        // Verificar si el cliente existe
+        if (!$cliente) {
+            return redirect()->route('clientes.index')->with('error', 'CLIENTE NO ENCONTRADO.');
+        }
+
+        // Eliminar el cliente
+        $cliente->delete();
         
-            // Eliminar el cliente
-            $cliente->delete();
-        
-            return redirect()->route('clientes.index');
+        return redirect()->route('clientes.index')->with('success', 'CLIENTE ELIMINADO CON ÉXITO.');
     }
+
+
 
     //MEtodo para la vista LISTARCLIENTES
 
@@ -289,7 +302,7 @@ class ClienteController extends Controller
     
         // Validar el hash
         if ($hash !== $hashGenerado) {
-            return redirect()->route('clientes.manejar')->with('error', 'ACCESO NO AUTORIZADO DESDE MOSTRAR CLIENTE.');
+            return redirect()->route('clientes.manejar')->with('error', 'ACCESO NO AUTORIZADO DESDE VER INFORMACIÓN.');
         }
     
         $cliente = Cliente::findOrFail($id);
@@ -300,12 +313,13 @@ class ClienteController extends Controller
 
     public function generarHash($id)
     {
-        $salt = env('URL_SALT');
+        $salt = config('app.url_salt'); // Definido en el archivo .env o config/app.php
         $hash = hash('sha256', $salt . $id);
         
-        // Tomar los 8 primeros caracteres de derecha a izquierda
-        return substr(strrev($hash), 0, 8);
-    }   
+        // Tomar los últimos 8 caracteres del hash
+        return substr($hash, -8);
+    }
+  
 
     public function manejarClientes(Request $request, $id = null)
     {
@@ -329,7 +343,7 @@ class ClienteController extends Controller
     
             // Verificar si el cliente existe
             if (!$cliente) {
-                return redirect()->route('clientes.manejar')->with('error', 'Cliente no encontrado.');
+                return redirect()->route('clientes.manejar')->with('error', 'CLIENTE NO ENCONTRADO.');
             }
     
             return view('mostrar_cliente', compact('cliente'));
@@ -363,7 +377,7 @@ class ClienteController extends Controller
         // Buscar el cliente
         $cliente = Cliente::find($id);
         if (!$cliente) {
-            return redirect()->route('clientes.manejar')->with('error', 'Cliente no encontrado.');
+            return redirect()->route('clientes.manejar')->with('error', 'CLIENTE NO ENCONTRADO.');
         }
 
         return view('edit', compact('cliente', 'hashGenerado'));
@@ -378,7 +392,7 @@ class ClienteController extends Controller
         $expectedIdsello = substr(hash('sha256', $id . config('app.url_salt')), -8);
 
         if ($idsello !== $expectedIdsello) {
-            return redirect()->route('clientes.index')->with('error', 'Acceso no autorizado.');
+            return redirect()->route('clientes.index')->with('error', 'ACCESO NO AUTORIZADO.');
         }
 
 
@@ -424,6 +438,6 @@ class ClienteController extends Controller
         // Guardar los cambios
         $cliente->save();
 
-        return redirect()->route('clientes.index')->with('success', 'Cliente actualizado con éxito');
+        return redirect()->route('clientes.index')->with('success', 'CLIENTE ACTUALIZADO CON ÉXITO');
     }
 }   

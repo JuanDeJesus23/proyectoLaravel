@@ -84,24 +84,53 @@
         transition: all 0.3s;
     }
 
-        .alert {
-            background-color: #f44336; /* Color rojo */
-            color: white; /* Texto blanco */
-            padding: 15px; /* Espaciado */
-            position: relative; /* Para el posicionamiento */
-            margin-bottom: 15px; /* Espaciado inferior */
-            text-align: center;
-            font-size: 25px;
-            font-weight: bold; /* Esto hará que el texto sea negrita */
-        }
+    .alert {
+    padding: 15px;
+    position: relative;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+    color: white;
+    }
 
-        .alert .close {
-            position: absolute;
-            right: 10px;
-            top: 5px;
-            color: white; /* Color del botón cerrar */
-            cursor: pointer; /* Cursor de puntero */
-        }
+    /* Alerta de éxito */
+    .alert-success {
+        background-color: #4CAF50; /* Verde brillante */
+        border-left: 8px solid #2e7d32; /* Borde decorativo */
+    }
+
+    .alert-success .close {
+        color: #d7ffd9; /* Color de botón de cerrar */
+    }
+
+    /* Alerta de error */
+    .alert-danger {
+        background-color: #f44336; /* Rojo brillante */
+        border-left: 8px solid #b71c1c; /* Borde decorativo */
+    }
+
+    .alert-danger .close {
+        color: #ffdadc; /* Color de botón de cerrar */
+    }
+
+    /* Botón de cerrar */
+    .alert .close {
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        background: none;
+        border: none;
+    }
+
+    .alert .close:hover {
+        color: #000; /* Cambia de color al pasar sobre él */
+    }
         .view-button { background-color: #007bff; }
         .edit-button { background-color: #ffc107; }
         .delete-button { background-color: #dc3545; }
@@ -110,6 +139,13 @@
 </head>
 <body>
 <div class="container">
+    
+    <!--manejo los mensajes de éxitos y errrores-->
+    @if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+    @endif
     @if(session('error'))
     <div class="alert alert-danger" role="alert">
         {{ session('error') }}
@@ -141,11 +177,12 @@
                         <a href="{{ route('clientes.edit', ['id' => $cliente->id, 'idsello' => $hashes[$cliente->id]]) }}">
                             <button class="edit-button">Editar</button>
                         </a>                        
-                        <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST" style="display:inline;">
+                        <form action="{{ route('clientes.destroy', ['id' => $cliente->id]) }}?idsello={{ $hashes[$cliente->id] }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="delete-button">Eliminar</button>
                         </form>
+                        
                     </div>
                     
                 </div>
@@ -154,5 +191,20 @@
         
     </div>
 @endif
+
+<script>
+    // Selecciona todas las alertas
+    const alerts = document.querySelectorAll('.alert');
+
+    // Configura un temporizador para que desaparezcan después de 5 segundos
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.opacity = '0'; // Inicia la animación de desvanecimiento
+            setTimeout(() => {
+                alert.style.display = 'none'; // Oculta completamente después del desvanecimiento
+            }, 500); // Tiempo para la animación (coincide con la transición CSS)
+        }, 5000); // Espera 5 segundos antes de iniciar el desvanecimiento
+    });
+</script>
 </body>
 </html>
